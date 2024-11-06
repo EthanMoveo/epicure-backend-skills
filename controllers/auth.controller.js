@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const bcrypt = require('bcrypt'); // Importer bcrypt
+const bcrypt = require('bcrypt');
 
 const register = async (req, res) => {
   const { username, password } = req.body;
