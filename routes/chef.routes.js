@@ -1,4 +1,3 @@
-// routes/chefRoutes.js
 const express = require('express');
 const {
   createChef,
