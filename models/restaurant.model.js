@@ -18,7 +18,12 @@ const restaurantSchema = new Schema({
   dishes: [{
     type: Schema.Types.ObjectId,
     ref: 'Dish', 
-  }]
+  }],
+  rating: {
+    type: Number,
+    required: true,
+    min: 0,
+  }
 });
 
 module.exports = mongoose.model('Restaurant', restaurantSchema);
