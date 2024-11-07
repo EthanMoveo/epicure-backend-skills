@@ -1,12 +1,17 @@
 const Restaurant = require('../models/restaurant.model');
+const Chef = require('../models/chef.model');
 
 const createRestaurant = async (req, res) => {
   const { name, image, chef, dishes, rating } = req.body;
-
   try {
-  const { name, image, chef, dishes, rating } = req.body;
   const restaurant = new Restaurant({ name, image, chef, dishes, rating });
     await restaurant.save();
+
+    await Chef.findByIdAndUpdate(
+      chef,
+      { $push: { restaurants: restaurant._id } },
+      { new: true }
+    );
     res.status(201).json({ message: 'Restaurant created successfully.', restaurant });
   } catch (error) {
     res.status(500).json({ message: 'Error creating restaurant.', error: error.message });
