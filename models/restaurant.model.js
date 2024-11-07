@@ -23,6 +23,7 @@ const restaurantSchema = new Schema({
     type: Number,
     required: true,
     min: 0,
+    max: 5,
   }
 });
 

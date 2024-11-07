@@ -1,10 +1,11 @@
 const Restaurant = require('../models/restaurant.model');
 
 const createRestaurant = async (req, res) => {
-  const { name, image, chef, dishes } = req.body;
+  const { name, image, chef, dishes, rating } = req.body;
 
   try {
-    const restaurant = new Restaurant({ name, image, chef, dishes });
+  const { name, image, chef, dishes, rating } = req.body;
+  const restaurant = new Restaurant({ name, image, chef, dishes, rating });
     await restaurant.save();
     res.status(201).json({ message: 'Restaurant created successfully.', restaurant });
   } catch (error) {
@@ -42,8 +43,8 @@ const updateRestaurant = async (req, res) => {
   try {
     const restaurant = await Restaurant.findByIdAndUpdate(
       id,
-      { name, image, chef, dishes },
-      { new: true, runValidators: true }
+      { name, image, chef, dishes, rating },
+      { new: true }
     );
     if (!restaurant) {
       return res.status(404).json({ message: 'Restaurant not found.' });
