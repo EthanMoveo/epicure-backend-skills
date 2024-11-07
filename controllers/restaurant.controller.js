@@ -1,4 +1,4 @@
-const Restaurant = require('../models/Restaurant');
+const Restaurant = require('../models/restaurant.model');
 
 const createRestaurant = async (req, res) => {
   const { name, image, chef, dishes } = req.body;

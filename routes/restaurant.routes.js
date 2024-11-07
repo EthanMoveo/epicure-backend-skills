@@ -1,4 +1,3 @@
-// routes/restaurantRoutes.js
 const express = require('express');
 const {
   createRestaurant,
@@ -6,7 +5,7 @@ const {
   getRestaurantById,
   updateRestaurant,
   deleteRestaurant
-} = require('../controllers/restaurantController');
+} = require('../controllers/restaurant.controller');
 
 const router = express.Router();
 
