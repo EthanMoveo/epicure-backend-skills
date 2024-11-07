@@ -44,17 +44,29 @@ const getDishById = async (req, res) => {
 
 const updateDish = async (req, res) => {
   const { id } = req.params;
-  const { name, price, ingredients, tags, restaurant } = req.body;
+  const { name, price, ingredients, tags, restaurant: newRestaurantId } = req.body;
 
   try {
-    const dish = await Dish.findByIdAndUpdate(
-      id,
-      { name, price, ingredients, tags, restaurant },
-      { new: true }
-    );
+    const dish = await Dish.findById(id);
+
     if (!dish) {
       return res.status(404).json({ message: 'Dish not found' });
     }
+
+    const oldRestaurantId = dish.restaurant;
+    if (oldRestaurantId.toString() !== newRestaurantId) {
+      await Restaurant.findByIdAndUpdate(oldRestaurantId, { $pull: { dishes: id } });
+      await Restaurant.findByIdAndUpdate(newRestaurantId, { $push: { dishes: id } });
+    }
+
+    dish.name = name;
+    dish.price = price;
+    dish.ingredients = ingredients;
+    dish.tags = tags;
+    dish.restaurant = newRestaurantId;
+    
+    await dish.save();
+
     res.status(200).json({ message: 'Dish updated successfully', dish });
   } catch (error) {
     res.status(500).json({ message: 'Error updating dish', error: error.message });
