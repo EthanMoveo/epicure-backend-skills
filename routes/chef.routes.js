@@ -9,10 +9,10 @@ const {
 
 const router = express.Router();
 
-router.post('/createChef', createChef);
-router.get('/getChefs', getAllChefs);
-router.get('/getChefById/:id', getChefById);
-router.put('/updateChef/:id', updateChef);
-router.delete('/deleteChef/:id', deleteChef);
+router.post('/create-chef', createChef);
+router.get('/get-chefs', getAllChefs);
+router.get('/get-chef-by-id/:id', getChefById);
+router.put('/update-chef/:id', updateChef);
+router.delete('/delete-chef/:id', deleteChef);
 
 module.exports = router;
