@@ -1,5 +1,6 @@
 const Restaurant = require('../models/restaurant.model');
 const Chef = require('../models/chef.model');
+const Dish = require('../models/dish.model');
 
 const createRestaurant = async (req, res) => {
   const { name, image, chef, dishes, rating } = req.body;
@@ -20,7 +21,7 @@ const createRestaurant = async (req, res) => {
 
 const getAllRestaurants = async (req, res) => {
   try {
-    const restaurants = await Restaurant.find().populate('chef').populate('dishes');
+    const restaurants = await Restaurant.find().populate('chef')//.populate('dishes');
     res.status(200).json(restaurants);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching restaurants.', error: error.message });
@@ -43,20 +44,31 @@ const getRestaurantById = async (req, res) => {
 
 const updateRestaurant = async (req, res) => {
   const { id } = req.params;
-  const { name, image, chef, dishes } = req.body;
+  const { name, image, chef: newChefId, dishes } = req.body;
 
   try {
-    const restaurant = await Restaurant.findByIdAndUpdate(
-      id,
-      { name, image, chef, dishes, rating },
-      { new: true }
-    );
+    const restaurant = await Restaurant.findById(id);
+
     if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurant not found.' });
+      return res.status(404).json({ message: 'Restaurant not found' });
     }
-    res.status(200).json({ message: 'Restaurant updated successfully.', restaurant });
+
+    const oldChefId = restaurant.chef;
+    if (oldChefId.toString() !== newChefId) {
+      await Chef.findByIdAndUpdate(oldChefId, { $pull: { restaurants: id } });
+      await Chef.findByIdAndUpdate(newChefId, { $push: { restaurants: id } });
+    }
+
+    restaurant.name = name;
+    restaurant.image = image;
+    restaurant.chef = newChefId;
+    restaurant.dishes = dishes;
+
+    await restaurant.save();
+
+    res.status(200).json({ message: 'Restaurant updated successfully', restaurant });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating restaurant.', error: error.message });
+    res.status(500).json({ message: 'Error updating restaurant', error: error.message });
   }
 };
 
@@ -68,6 +80,17 @@ const deleteRestaurant = async (req, res) => {
     if (!restaurant) {
       return res.status(404).json({ message: 'Restaurant not found.' });
     }
+
+    await Chef.findByIdAndUpdate(
+      restaurant.chef,
+      { $pull: { restaurants: id } }
+    );
+
+    await Dish.updateMany(
+      { restaurant: id },
+      { $set: { restaurant: null } } 
+    );
+    
     res.status(200).json({ message: 'Restaurant deleted successfully.' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting restaurant.', error: error.message });
