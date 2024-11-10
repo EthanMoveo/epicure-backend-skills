@@ -76,10 +76,43 @@ const deleteChef = async (req, res) => {
   }
 };
  
+
+const getChefOfTheWeek = async (req, res) => {
+  try {
+    const chefs = await Chef.find().populate('restaurants');
+
+    let chefOfTheWeek = null;
+    let highestAverageRating = 0;
+
+    for (const chef of chefs) {
+      const restaurants = chef.restaurants;
+
+      if (restaurants.length > 0) {
+        const totalRating = restaurants.reduce((sum, restaurant) => sum + (restaurant.rating || 0), 0);
+        const averageRating = totalRating / restaurants.length;
+
+        if (averageRating > highestAverageRating) {
+          highestAverageRating = averageRating;
+          chefOfTheWeek = chef;
+        }
+      }
+    }
+
+    if (!chefOfTheWeek) {
+      return res.status(404).json({ message: 'No chef found with rated restaurants.' });
+    }
+
+    res.status(200).json({ chefOfTheWeek, averageRating: highestAverageRating });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching Chef of the Week.', error: error.message });
+  }
+};
+
 module.exports = {
   createChef,
   getAllChefs,
   getChefById,
   updateChef,
-  deleteChef
+  deleteChef,
+  getChefOfTheWeek
 };

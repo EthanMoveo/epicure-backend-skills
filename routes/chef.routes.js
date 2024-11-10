@@ -4,11 +4,13 @@ const {
   getAllChefs,
   getChefById,
   updateChef,
-  deleteChef
+  deleteChef,
+  getChefOfTheWeek
 } = require('../controllers/chef.controller');
 
 const router = express.Router();
 
+router.get('/chef-of-the-week', getChefOfTheWeek);
 router.post('/', createChef);
 router.get('/', getAllChefs);
 router.get('/:id', getChefById);
