@@ -1,4 +1,5 @@
 const Chef = require('../models/chef.model');
+const Restaurant = require('../models/restaurant.model');
 
 const createChef = async (req, res) => {
   const { name, image, description, restaurants } = req.body;
@@ -62,6 +63,13 @@ const deleteChef = async (req, res) => {
     if (!chef) {
       return res.status(404).json({ message: 'Chef not found.' });
     }
+
+    await Restaurant.updateMany(
+      { chef: id },
+      { $set: { chef: null } } 
+    );
+
+
     res.status(200).json({ message: 'Chef deleted successfully.' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting chef.', error: error.message });
