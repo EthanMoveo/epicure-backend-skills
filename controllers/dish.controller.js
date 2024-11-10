@@ -81,6 +81,12 @@ const deleteDish = async (req, res) => {
     if (!dish) {
       return res.status(404).json({ message: 'Dish not found' });
     }
+
+    await Restaurant.findByIdAndUpdate(
+      dish.restaurant,
+      { $pull: { dishes: id } } 
+    );
+
     res.status(200).json({ message: 'Dish deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting dish', error: error.message });
