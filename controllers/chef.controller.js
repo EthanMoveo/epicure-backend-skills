@@ -1,0 +1,118 @@
+const Chef = require('../models/chef.model');
+const Restaurant = require('../models/restaurant.model');
+
+const createChef = async (req, res) => {
+  const { name, image, description, restaurants } = req.body;
+
+  try { 
+    const chef = new Chef({ name, image, description, restaurants });
+    await chef.save();
+    res.status(201).json({ message: 'Chef created successfully.', chef });
+  } catch (error) {
+    res.status(500).json({ message: 'Error while creating chef.', error: error.message });
+  }
+};
+
+const getAllChefs = async (req, res) => {
+  try {
+    const chefs = await Chef.find().populate('restaurants');
+    res.status(200).json(chefs);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching chefs.', error: error.message });
+  }
+};
+
+const getChefById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const chef = await Chef.findById(id).populate('restaurants');
+    if (!chef) {
+      return res.status(404).json({ message: 'Chef not found.' });
+    }
+    res.status(200).json(chef);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching chef.', error: error.message });
+  }
+};
+
+const updateChef = async (req, res) => {
+  const { id } = req.params;
+  const { name, image, description, restaurants } = req.body;
+
+  try {
+    const chef = await Chef.findByIdAndUpdate(
+      id,
+      { name, image, description, restaurants },
+      { new: true}
+    );
+    if (!chef) {
+      return res.status(404).json({ message: 'Chef not found.' });
+    }
+    res.status(200).json({ message: 'Chef updated successfully.', chef });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating chef.', error: error.message });
+  }
+};
+
+const deleteChef = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const chef = await Chef.findByIdAndDelete(id);
+    if (!chef) {
+      return res.status(404).json({ message: 'Chef not found.' });
+    }
+
+    await Restaurant.updateMany(
+      { chef: id },
+      { $set: { chef: null } } 
+    );
+
+
+    res.status(200).json({ message: 'Chef deleted successfully.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting chef.', error: error.message });
+  }
+};
+ 
+
+const getChefOfTheWeek = async (req, res) => {
+  try {
+    const chefs = await Chef.find().populate('restaurants');
+
+    let chefOfTheWeek = null;
+    let highestAverageRating = 0;
+
+    chefs.forEach((chef) => {
+      const restaurants = chef.restaurants;
+    
+      if (restaurants.length > 0) {
+        const totalRating = restaurants.reduce((sum, restaurant) => sum + (restaurant.rating || 0), 0);
+        const averageRating = totalRating / restaurants.length;
+    
+        if (averageRating > highestAverageRating) {
+          highestAverageRating = averageRating;
+          chefOfTheWeek = chef;
+        }
+      }
+    });    
+
+    if (!chefOfTheWeek) {
+      return res.status(404).json({ message: 'No chef found with rated restaurants.' });
+    }
+
+    res.status(200).json({ chefOfTheWeek, averageRating: highestAverageRating });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching Chef of the Week.', error: error.message });
+  }
+};
+
+module.exports = {
+  createChef,
+  getAllChefs,
+  getChefById,
+  updateChef,
+  deleteChef,
+  getChefOfTheWeek
+};
