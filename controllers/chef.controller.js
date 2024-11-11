@@ -84,19 +84,19 @@ const getChefOfTheWeek = async (req, res) => {
     let chefOfTheWeek = null;
     let highestAverageRating = 0;
 
-    for (const chef of chefs) {
+    chefs.forEach((chef) => {
       const restaurants = chef.restaurants;
-
+    
       if (restaurants.length > 0) {
         const totalRating = restaurants.reduce((sum, restaurant) => sum + (restaurant.rating || 0), 0);
         const averageRating = totalRating / restaurants.length;
-
+    
         if (averageRating > highestAverageRating) {
           highestAverageRating = averageRating;
           chefOfTheWeek = chef;
         }
       }
-    }
+    });    
 
     if (!chefOfTheWeek) {
       return res.status(404).json({ message: 'No chef found with rated restaurants.' });
