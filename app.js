@@ -17,13 +17,6 @@ app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/dishes', dishRoutes);
 
 
-
-app.get('/', (req, res) => {
-    res.status(200);
-    res.send("Server is live.");
-})
-
-
 app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
 })
