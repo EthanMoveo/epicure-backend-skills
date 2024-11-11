@@ -44,7 +44,7 @@ const getDishById = async (req, res) => {
 
 const updateDish = async (req, res) => {
   const { id } = req.params;
-  const { name, price, ingredients, tags, restaurant: newRestaurantId } = req.body;
+  const newRestaurantId  = req.body.restaurant;
 
   try {
     const dish = await Dish.findById(id);
@@ -59,11 +59,7 @@ const updateDish = async (req, res) => {
       await Restaurant.findByIdAndUpdate(newRestaurantId, { $push: { dishes: id } });
     }
 
-    dish.name = name;
-    dish.price = price;
-    dish.ingredients = ingredients;
-    dish.tags = tags;
-    dish.restaurant = newRestaurantId;
+    Object.assign(dish, req.body)
     
     await dish.save();
 

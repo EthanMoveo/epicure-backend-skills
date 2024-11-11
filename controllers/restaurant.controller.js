@@ -21,7 +21,7 @@ const createRestaurant = async (req, res) => {
 
 const getAllRestaurants = async (req, res) => {
   try {
-    const restaurants = await Restaurant.find().populate('chef')//.populate('dishes');
+    const restaurants = await Restaurant.find().populate('chef').populate('dishes');
     res.status(200).json(restaurants);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching restaurants.', error: error.message });
@@ -44,7 +44,7 @@ const getRestaurantById = async (req, res) => {
 
 const updateRestaurant = async (req, res) => {
   const { id } = req.params;
-  const { name, image, chef: newChefId, dishes } = req.body;
+  const newChefId = req.body.chef;
 
   try {
     const restaurant = await Restaurant.findById(id);
@@ -59,10 +59,7 @@ const updateRestaurant = async (req, res) => {
       await Chef.findByIdAndUpdate(newChefId, { $push: { restaurants: id } });
     }
 
-    restaurant.name = name;
-    restaurant.image = image;
-    restaurant.chef = newChefId;
-    restaurant.dishes = dishes;
+    Object.assign(restaurant, req.body)
 
     await restaurant.save();
 
