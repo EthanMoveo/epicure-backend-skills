@@ -2,9 +2,9 @@ const Dish = require('../models/dish.model');
 const Restaurant = require('../models/restaurant.model');
 
 const createDish = async (req, res) => {
-  const { name, price, ingredients, tags, restaurant } = req.body;
+  const { name, image, price, ingredients, tags, restaurant } = req.body;
   try {
-    const dish = new Dish({ name, price, ingredients, tags, restaurant });
+    const dish = new Dish({ name, image, price, ingredients, tags, restaurant });
     await dish.save();
 
     await Restaurant.findByIdAndUpdate(
