@@ -9,7 +9,7 @@ const register = async (req, res) => {
   try {
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(400).json({ message: 'Username already been taken.' });
+      return res.status(409).json({ message: 'Username already been taken.' });
     }
 
     const saltRounds = 10;
@@ -20,7 +20,7 @@ const register = async (req, res) => {
     
     res.status(201).json({ message: 'User saved successfully in the database.' });
   } catch (error) {
-    res.status(500).json({ message: 'An error occurred: ', error });
+    res.status(500).json({ message: 'An error occurred due to an interval server error.', error });
   }
 };
 
@@ -30,18 +30,18 @@ const login = async (req, res) => {
   try {
     const user = await User.findOne({ username });
     if (!user) {
-      return res.status(400).json({ message: 'This username does not exist in the system.' });
+      return res.status(401).json({ message: 'This username does not exist in the system.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'The password is incorrect.' });
+      return res.status(401).json({ message: 'The password is incorrect.' });
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
     res.status(200).json({ message: 'Login successful.', token, "user": user.username});
   } catch (error) {
-    res.status(500).json({ message: 'An error occurred:', error });
+    res.status(500).json({ message: 'An error occurred due to an interval server error.', error });
     console.log(error.message);
   }
 };
